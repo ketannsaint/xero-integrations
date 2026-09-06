@@ -73,23 +73,22 @@ contract probes; it does not prove the API behavior.
 | Real sender name | First outreach | Supplied: Leopold Saint |
 | Business or trading identity | First outreach and public page | Supplied for research: Leopold Saint; legal invoicing identity and country still required before payment |
 | Monitored business reply address | First outreach and public page | Supplied: leo.saint.dior@gmail.com |
-| Public HTTPS URL | First outreach | GitHub Pages selected; GitHub remote still required |
+| Public HTTPS URL | First outreach | Live: https://ketannsaint.github.io/xero-integrations/ |
 | Two replacement Australian prospects | Completing the 10-prospect AU cohort | 8 AU targets ready; 2 international drafts retained as non-counting backups |
 | Provider approval and owner KYC for the exact audit terms | Offering an invoice or accepting payment | Status unknown; treat as not started |
 | Written Xero answer on certification for a non-listed Core commercial integration | Any production API onboarding | Not requested yet |
 
-The first action required to contact prospect 1 is now to publish the static
-page at a public HTTPS URL and replace the remaining URL placeholder. Sending
-the message still requires explicit owner authorization.
+The first action required to contact prospect 1 is now explicit owner
+authorization to send the prepared David Raymer message. No outreach has been
+sent.
 
-## Publish blocker
+## Publication
 
 The public repository is <https://github.com/ketannsaint/xero-integrations> and
-the expected validation URL is
+the live validation URL is
 <https://ketannsaint.github.io/xero-integrations/>. The included workflow
-publishes `apps/price-guard-validation/`. In GitHub, set **Settings -> Pages ->
-Build and deployment -> Source** to **GitHub Actions** if it is not already the
-selected source.
+publishes `apps/price-guard-validation/`. GitHub Pages is configured to build
+with GitHub Actions. Deployment attempt 2 completed successfully on 2026-09-06.
 
 ## Repository map
 
