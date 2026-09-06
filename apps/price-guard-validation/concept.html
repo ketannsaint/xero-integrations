@@ -1,0 +1,858 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Price Guard Concept Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --ink: #17201d;
+      --muted: #66716d;
+      --line: #dfe5e1;
+      --paper: #ffffff;
+      --canvas: #f3f6f4;
+      --forest: #176447;
+      --forest-dark: #0d4a33;
+      --mint: #e9f5ef;
+      --amber: #a75f08;
+      --amber-bg: #fff5df;
+      --red: #a13b32;
+      --red-bg: #fff0ed;
+      --blue: #315f8f;
+      --blue-bg: #edf4fb;
+      --shadow: 0 18px 50px rgba(28, 42, 36, 0.09);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background:
+        repeating-linear-gradient(90deg, transparent 0, transparent 39px, rgba(23, 100, 71, 0.025) 40px),
+        var(--canvas);
+      font-family: "Manrope", sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      letter-spacing: 0;
+    }
+
+    button, input { font: inherit; }
+    button { letter-spacing: 0; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 224px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 16px;
+      color: #edf5f1;
+      background: #16251f;
+      border-right: 1px solid #263a31;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 8px 32px;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      color: #16251f;
+      background: #8fe0b8;
+      border-radius: 7px;
+    }
+
+    .concept-label {
+      margin-left: auto;
+      padding: 3px 6px;
+      color: #b8c9c1;
+      border: 1px solid #40574c;
+      border-radius: 4px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav-button {
+      width: 100%;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 11px;
+      color: #b9c8c1;
+      background: transparent;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .nav-button:hover, .nav-button.active {
+      color: #fff;
+      background: #243a30;
+    }
+
+    .nav-button .count {
+      min-width: 22px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      margin-left: auto;
+      color: #163327;
+      background: #8fe0b8;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .sidebar-foot {
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      bottom: 24px;
+      color: #91a39b;
+      font-size: 11px;
+    }
+
+    .connection {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 7px;
+      color: #d8e5df;
+    }
+
+    .connection-dot {
+      width: 7px;
+      height: 7px;
+      background: #69ce98;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(105, 206, 152, 0.12);
+    }
+
+    .main {
+      min-width: 0;
+      padding: 28px clamp(18px, 4vw, 56px) 52px;
+    }
+
+    .topbar {
+      max-width: 1180px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 auto 26px;
+    }
+
+    .org {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .org-avatar {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      color: var(--blue);
+      background: var(--blue-bg);
+      border: 1px solid #c9dbea;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .preview-badge {
+      padding: 5px 8px;
+      color: var(--amber);
+      background: var(--amber-bg);
+      border: 1px solid #ecd7ae;
+      border-radius: 5px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .view {
+      display: none;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .view.active { display: block; }
+
+    .eyebrow {
+      margin-bottom: 7px;
+      color: var(--forest);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 720px;
+      margin-bottom: 8px;
+      font-size: clamp(26px, 3vw, 38px);
+      line-height: 1.16;
+      letter-spacing: 0;
+    }
+
+    .lede {
+      max-width: 690px;
+      margin-bottom: 26px;
+      color: var(--muted);
+    }
+
+    .summary-band {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-bottom: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .summary-item {
+      min-height: 88px;
+      padding: 18px 20px;
+      border-right: 1px solid var(--line);
+    }
+
+    .summary-item:last-child { border-right: 0; }
+
+    .summary-label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .summary-value {
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .summary-value.risk { color: var(--red); }
+
+    .bill-panel {
+      overflow: hidden;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .bill-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 19px 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .supplier-mark {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 40px;
+      color: #6c4d13;
+      background: #f6e5be;
+      border-radius: 7px;
+      font-weight: 700;
+    }
+
+    .bill-title { margin: 0; font-size: 15px; }
+    .bill-meta { margin: 2px 0 0; color: var(--muted); font-size: 11px; }
+
+    .status {
+      margin-left: auto;
+      padding: 5px 8px;
+      color: var(--forest);
+      background: var(--mint);
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th {
+      padding: 12px 14px;
+      color: var(--muted);
+      background: #f8faf9;
+      border-bottom: 1px solid var(--line);
+      font-size: 10px;
+      font-weight: 600;
+      text-align: right;
+      text-transform: uppercase;
+    }
+
+    th:first-child, th:last-child { text-align: left; }
+
+    td {
+      padding: 17px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    td:first-child, td:last-child { text-align: left; }
+
+    .item-name { display: block; font-weight: 700; }
+    .sku { color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 10px; }
+    .old-value { color: var(--muted); text-decoration: line-through; }
+    .new-value { font-weight: 700; }
+    .change { color: var(--red); font-size: 11px; font-weight: 700; }
+    .margin-down { color: var(--red); font-weight: 700; }
+    .suggested { color: var(--forest); font-weight: 700; }
+
+    .choice-group {
+      width: 200px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+
+    .choice {
+      min-height: 34px;
+      padding: 6px 8px;
+      color: var(--muted);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .choice:hover { border-color: #9bb1a7; }
+    .choice.active { color: var(--forest-dark); background: var(--mint); border-color: #8bc7aa; }
+    .choice.ignore { grid-column: 1 / -1; }
+
+    .approval-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 18px;
+      padding: 16px 18px;
+      background: #182820;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .approval-copy { min-width: 0; color: #edf5f1; }
+    .approval-copy strong { display: block; }
+    .approval-copy span { color: #9fb2a9; font-size: 11px; }
+
+    .button {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .button-primary { margin-left: auto; color: #10261c; background: #8fe0b8; }
+    .button-primary:hover { background: #a5e8c6; }
+    .button-quiet { color: #c4d0cb; background: transparent; }
+    .button-quiet:hover { color: #fff; background: #293c33; }
+    .button-outline { color: var(--ink); background: #fff; border: 1px solid var(--line); }
+    .button-danger { color: var(--red); background: var(--red-bg); border: 1px solid #e6bdb7; }
+
+    .history-list {
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .history-row {
+      display: grid;
+      grid-template-columns: 42px minmax(170px, 1.3fr) 1fr 1fr auto;
+      gap: 14px;
+      align-items: center;
+      min-height: 76px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .history-row:last-child { border-bottom: 0; }
+
+    .history-icon {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      color: var(--forest);
+      background: var(--mint);
+      border-radius: 6px;
+    }
+
+    .history-primary strong, .history-cell strong { display: block; font-size: 12px; }
+    .history-primary span, .history-cell span { color: var(--muted); font-size: 10px; }
+
+    .empty-history {
+      padding: 38px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(10, 20, 16, 0.62);
+    }
+
+    .modal-backdrop.open { display: grid; }
+
+    .modal {
+      width: min(560px, 100%);
+      max-height: calc(100vh - 36px);
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+    }
+
+    .modal-head, .modal-body, .modal-foot { padding: 20px 22px; }
+    .modal-head { display: flex; gap: 14px; align-items: flex-start; border-bottom: 1px solid var(--line); }
+    .modal-head h2 { margin-bottom: 4px; font-size: 18px; }
+    .modal-head p { margin: 0; color: var(--muted); font-size: 11px; }
+    .success-mark { width: 38px; height: 38px; display: grid; place-items: center; flex: 0 0 38px; color: var(--forest); background: var(--mint); border-radius: 7px; }
+
+    .receipt-id {
+      margin-bottom: 14px;
+      padding: 8px 10px;
+      color: var(--muted);
+      background: #f7f9f8;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10px;
+    }
+
+    .receipt-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .receipt-row:last-child { border-bottom: 0; }
+    .receipt-row strong { display: block; font-size: 12px; }
+    .receipt-row span { color: var(--muted); font-size: 10px; }
+    .receipt-change { align-self: center; color: var(--forest); font-family: "IBM Plex Mono", monospace; font-size: 10px; text-align: right; }
+
+    .modal-foot { display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid var(--line); }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 30;
+      display: none;
+      padding: 12px 15px;
+      color: #fff;
+      background: #17251f;
+      border-radius: 6px;
+      box-shadow: var(--shadow);
+      font-size: 12px;
+    }
+
+    .toast.show { display: block; }
+
+    .mobile-nav { display: none; }
+
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main { padding-bottom: 92px; }
+      .summary-band { grid-template-columns: 1fr 1fr; }
+      .summary-item:nth-child(2) { border-right: 0; }
+      .summary-item:nth-child(-n + 2) { border-bottom: 1px solid var(--line); }
+      .history-row { grid-template-columns: 38px minmax(0, 1fr) auto; }
+      .history-cell { display: none; }
+      .mobile-nav {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        z-index: 10;
+        height: 58px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        padding: 5px;
+        background: #16251f;
+        border: 1px solid #2f433a;
+        border-radius: 8px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+      }
+      .mobile-nav .nav-button { height: 46px; justify-content: center; font-size: 11px; }
+      .mobile-nav .count { display: none; }
+    }
+
+    @media (max-width: 620px) {
+      .main { padding: 18px 12px 88px; }
+      .topbar { margin-bottom: 20px; }
+      .org-copy { display: none; }
+      h1 { font-size: 27px; }
+      .summary-band { grid-template-columns: 1fr; }
+      .summary-item { min-height: 68px; padding: 13px 16px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .summary-item:nth-child(2) { border-bottom: 1px solid var(--line); }
+      .summary-item:last-child { border-bottom: 0; }
+      .bill-head { padding: 15px; }
+      .approval-bar { align-items: stretch; flex-direction: column; }
+      .button-primary { margin-left: 0; }
+      .button-quiet { order: 3; }
+      .modal-foot { flex-direction: column-reverse; }
+      .modal-foot .button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark"><i data-lucide="shield-check" size="18"></i></span>
+        Price Guard
+        <span class="concept-label">Concept</span>
+      </div>
+      <nav class="nav" aria-label="Primary navigation">
+        <button class="nav-button active" data-view="review"><i data-lucide="inbox" size="17"></i> Review queue <span class="count">2</span></button>
+        <button class="nav-button" data-view="history"><i data-lucide="history" size="17"></i> History</button>
+        <button class="nav-button" data-view="settings"><i data-lucide="settings" size="17"></i> Settings</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="connection"><span class="connection-dot"></span> Demo organisation</div>
+        Concept only. No Xero data connected.
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <span class="preview-badge">Concept preview</span>
+        <div class="org">
+          <span class="org-copy">Harbour Trade Supplies</span>
+          <span class="org-avatar">HT</span>
+        </div>
+      </header>
+
+      <section id="review" class="view active">
+        <div class="eyebrow">Supplier bill / BILL-1048</div>
+        <h1>Two item costs changed on this bill</h1>
+        <p class="lede">Review the effect on future purchase defaults and selling margins. Existing bills and stock valuation remain unchanged.</p>
+
+        <div class="summary-band" aria-label="Bill summary">
+          <div class="summary-item"><span class="summary-label">Changes found</span><span class="summary-value">2 items</span></div>
+          <div class="summary-item"><span class="summary-label">Average cost increase</span><span class="summary-value risk">+13.6%</span></div>
+          <div class="summary-item"><span class="summary-label">Margin at risk per set</span><span class="summary-value risk">A$0.53</span></div>
+          <div class="summary-item"><span class="summary-label">Bill status</span><span class="summary-value">Authorised</span></div>
+        </div>
+
+        <article class="bill-panel">
+          <header class="bill-head">
+            <span class="supplier-mark">CP</span>
+            <div>
+              <h2 class="bill-title">Coastal Packaging Pty Ltd</h2>
+              <p class="bill-meta">BILL-1048 · 12 Aug 2026 · AUD · 3 lines</p>
+            </div>
+            <span class="status">Ready to review</span>
+          </header>
+          <div class="table-wrap">
+            <table>
+              <colgroup>
+                <col style="width: 190px">
+                <col style="width: 84px">
+                <col style="width: 84px">
+                <col style="width: 72px">
+                <col style="width: 88px">
+                <col style="width: 92px">
+                <col style="width: 96px">
+                <col style="width: 230px">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Old cost</th>
+                  <th>Bill cost</th>
+                  <th>Change</th>
+                  <th>Sell price</th>
+                  <th>New margin</th>
+                  <th>Suggested</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr data-row="tape">
+                  <td><span class="item-name">Packaging tape 48 mm</span><span class="sku">PK-TAPE-48</span></td>
+                  <td class="old-value">A$2.40</td>
+                  <td class="new-value">A$2.82</td>
+                  <td class="change">+17.5%</td>
+                  <td>A$4.50</td>
+                  <td class="margin-down">37.3%</td>
+                  <td class="suggested">A$5.29</td>
+                  <td>
+                    <div class="choice-group" role="group" aria-label="Packaging tape action">
+                      <button class="choice" data-action="cost">Cost only</button>
+                      <button class="choice active" data-action="both">Cost + sale</button>
+                      <button class="choice ignore" data-action="ignore">Ignore this change</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-row="carton">
+                  <td><span class="item-name">Shipping carton 400 × 300</span><span class="sku">BX-4030</span></td>
+                  <td class="old-value">A$1.15</td>
+                  <td class="new-value">A$1.26</td>
+                  <td class="change">+9.6%</td>
+                  <td>A$2.20</td>
+                  <td class="margin-down">42.7%</td>
+                  <td class="suggested">A$2.41</td>
+                  <td>
+                    <div class="choice-group" role="group" aria-label="Shipping carton action">
+                      <button class="choice active" data-action="cost">Cost only</button>
+                      <button class="choice" data-action="both">Cost + sale</button>
+                      <button class="choice ignore" data-action="ignore">Ignore this change</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <div class="approval-bar">
+          <div class="approval-copy"><strong id="approval-count">Approve 2 item updates</strong><span>Values are checked again against Xero immediately before writing.</span></div>
+          <button class="button button-quiet" id="leave-button">Leave unchanged</button>
+          <button class="button button-primary" id="approve-button"><i data-lucide="check" size="17"></i> Review and approve</button>
+        </div>
+      </section>
+
+      <section id="history" class="view">
+        <div class="eyebrow">Audit history</div>
+        <h1>Every approved change has a receipt</h1>
+        <p class="lede">Receipts keep the source bill and before-and-after defaults together. Rollback is available only when the item has not changed again.</p>
+        <div class="history-list" id="history-list">
+          <div class="empty-history" id="empty-history">No changes approved in this preview yet.</div>
+        </div>
+      </section>
+
+      <section id="settings" class="view">
+        <div class="eyebrow">Organisation settings</div>
+        <h1>Harbour Trade Supplies</h1>
+        <p class="lede">Purchase defaults are monitored on authorised AUD supplier bills. Foreign currency, credits, landed costs and unit conversions are excluded.</p>
+        <div class="summary-band">
+          <div class="summary-item"><span class="summary-label">Target gross margin</span><span class="summary-value">46.7%</span></div>
+          <div class="summary-item"><span class="summary-label">Approval mode</span><span class="summary-value">Always ask</span></div>
+          <div class="summary-item"><span class="summary-label">Bill currency</span><span class="summary-value">AUD only</span></div>
+          <div class="summary-item"><span class="summary-label">Connected since</span><span class="summary-value">Concept</span></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Mobile navigation">
+    <button class="nav-button active" data-view="review"><i data-lucide="inbox" size="17"></i> Review</button>
+    <button class="nav-button" data-view="history"><i data-lucide="history" size="17"></i> History</button>
+    <button class="nav-button" data-view="settings"><i data-lucide="settings" size="17"></i> Settings</button>
+  </nav>
+
+  <div class="modal-backdrop" id="approval-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <header class="modal-head">
+        <span class="success-mark"><i data-lucide="clipboard-check" size="20"></i></span>
+        <div><h2 id="modal-title">Confirm future default updates</h2><p>Source bill BILL-1048 remains unchanged.</p></div>
+      </header>
+      <div class="modal-body">
+        <div class="receipt-id">PENDING RECEIPT · BILL-1048 · 2 ITEMS</div>
+        <div class="receipt-row">
+          <div><strong>Packaging tape 48 mm</strong><span>Purchase and sale defaults</span></div>
+          <div class="receipt-change">A$2.40 → A$2.82<br>A$4.50 → A$5.29</div>
+        </div>
+        <div class="receipt-row">
+          <div><strong>Shipping carton 400 × 300</strong><span>Purchase default only</span></div>
+          <div class="receipt-change">A$1.15 → A$1.26<br>Sale remains A$2.20</div>
+        </div>
+      </div>
+      <footer class="modal-foot">
+        <button class="button button-outline" id="cancel-modal">Cancel</button>
+        <button class="button button-primary" id="confirm-button"><i data-lucide="shield-check" size="17"></i> Approve 2 updates</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="receipt-modal" role="dialog" aria-modal="true" aria-labelledby="receipt-title">
+    <div class="modal">
+      <header class="modal-head">
+        <span class="success-mark"><i data-lucide="circle-check" size="20"></i></span>
+        <div><h2 id="receipt-title">Updates verified</h2><p>Both Xero item defaults matched the approved values.</p></div>
+      </header>
+      <div class="modal-body">
+        <div class="receipt-id">RECEIPT PG-260812-0047 · APPROVED 12 AUG 2026, 10:42 AEST</div>
+        <div class="receipt-row">
+          <div><strong>Source preserved</strong><span>Coastal Packaging · BILL-1048 · Authorised</span></div>
+          <div class="receipt-change">Verified</div>
+        </div>
+        <div class="receipt-row">
+          <div><strong>2 purchase defaults</strong><span>Before and after values stored</span></div>
+          <div class="receipt-change">Verified</div>
+        </div>
+        <div class="receipt-row">
+          <div><strong>1 sale default</strong><span>Target margin 46.7%</span></div>
+          <div class="receipt-change">Verified</div>
+        </div>
+      </div>
+      <footer class="modal-foot">
+        <button class="button button-danger" id="rollback-button"><i data-lucide="undo-2" size="17"></i> Roll back defaults</button>
+        <button class="button button-primary" id="done-button">Done</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const views = document.querySelectorAll('.view');
+    const navButtons = document.querySelectorAll('[data-view]');
+    const approvalModal = document.getElementById('approval-modal');
+    const receiptModal = document.getElementById('receipt-modal');
+    const approvalCount = document.getElementById('approval-count');
+    const approveButton = document.getElementById('approve-button');
+    const toast = document.getElementById('toast');
+    let approved = false;
+
+    function showView(viewId) {
+      views.forEach((view) => view.classList.toggle('active', view.id === viewId));
+      navButtons.forEach((button) => button.classList.toggle('active', button.dataset.view === viewId));
+    }
+
+    function selectedRows() {
+      return [...document.querySelectorAll('tr[data-row]')].filter((row) => !row.querySelector('.choice.active')?.classList.contains('ignore'));
+    }
+
+    function updateApprovalCount() {
+      const count = selectedRows().length;
+      approvalCount.textContent = count ? `Approve ${count} item update${count === 1 ? '' : 's'}` : 'No updates selected';
+      approveButton.disabled = count === 0;
+      approveButton.style.opacity = count === 0 ? '0.55' : '1';
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      window.setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    navButtons.forEach((button) => button.addEventListener('click', () => showView(button.dataset.view)));
+
+    document.querySelectorAll('.choice-group').forEach((group) => {
+      group.addEventListener('click', (event) => {
+        const button = event.target.closest('.choice');
+        if (!button) return;
+        group.querySelectorAll('.choice').forEach((choice) => choice.classList.remove('active'));
+        button.classList.add('active');
+        updateApprovalCount();
+      });
+    });
+
+    approveButton.addEventListener('click', () => approvalModal.classList.add('open'));
+    document.getElementById('cancel-modal').addEventListener('click', () => approvalModal.classList.remove('open'));
+    document.getElementById('leave-button').addEventListener('click', () => showToast('No defaults changed. BILL-1048 stays in the review queue.'));
+
+    document.getElementById('confirm-button').addEventListener('click', () => {
+      approvalModal.classList.remove('open');
+      receiptModal.classList.add('open');
+      approved = true;
+      document.getElementById('history-list').innerHTML = `
+        <div class="history-row">
+          <span class="history-icon"><i data-lucide="receipt-text" size="17"></i></span>
+          <div class="history-primary"><strong>Coastal Packaging · BILL-1048</strong><span>Receipt PG-260812-0047</span></div>
+          <div class="history-cell"><strong>2 purchase · 1 sale</strong><span>Defaults updated</span></div>
+          <div class="history-cell"><strong>Verified</strong><span>12 Aug 2026, 10:42</span></div>
+          <button class="button button-outline" id="history-receipt">View receipt</button>
+        </div>`;
+      document.getElementById('history-receipt').addEventListener('click', () => receiptModal.classList.add('open'));
+      lucide.createIcons();
+    });
+
+    document.getElementById('done-button').addEventListener('click', () => {
+      receiptModal.classList.remove('open');
+      showView('history');
+    });
+
+    document.getElementById('rollback-button').addEventListener('click', () => {
+      receiptModal.classList.remove('open');
+      if (approved) {
+        approved = false;
+        document.getElementById('history-list').innerHTML = '<div class="empty-history">Receipt PG-260812-0047 was rolled back. Before values were restored and verified.</div>';
+        showToast('Rollback verified. Original defaults restored.');
+      }
+    });
+
+    [approvalModal, receiptModal].forEach((backdrop) => {
+      backdrop.addEventListener('click', (event) => {
+        if (event.target === backdrop) backdrop.classList.remove('open');
+      });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        approvalModal.classList.remove('open');
+        receiptModal.classList.remove('open');
+      }
+    });
+
+    updateApprovalCount();
+    lucide.createIcons();
+  </script>
+</body>
+</html>
